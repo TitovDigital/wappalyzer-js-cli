@@ -366,6 +366,7 @@ class Driver {
             acceptInsecureCerts: true,
             args: chromiumArgs,
             executablePath: CHROMIUM_BIN,
+            headless: "new",
             timeout: this.options.fast
               ? Math.min(this.options.maxWait, 10000)
               : this.options.maxWait,

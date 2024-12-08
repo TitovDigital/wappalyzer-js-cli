@@ -1,0 +1,13 @@
+{
+  "Records": [
+    {
+      "messageId": "1",
+      "receiptHandle": "abc123",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-east-1:123456789:WappalyzerQueue",
+      "awsRegion": "us-east-1",
+      "body": "{\"url\": \"https://archive.org\", \"identifier\":\"123456\"}"
+    }
+  ]
+}
+    

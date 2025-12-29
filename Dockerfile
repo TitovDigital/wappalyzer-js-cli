@@ -4,7 +4,7 @@ RUN apk add git
 RUN git clone https://github.com/enthec/webappanalyzer
 
 
-FROM public.ecr.aws/lambda/nodejs:20
+FROM public.ecr.aws/lambda/nodejs:22
 # Add dependent repos
 COPY --from=dependencies /home/webappanalyzer /var/webappanalyzer
 

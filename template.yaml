@@ -11,9 +11,9 @@ Globals:
     Timeout: 60
 
 Parameters:
-  QueueName:
+  ResultsTopicArn:
     Type: String
-    Description: Name of the queue triggering function
+    Description: ARN of the SNS Topic where the results are published
   QueueArn:
     Type: String
     Description: ARN of the queue triggering function
@@ -25,10 +25,15 @@ Resources:
       PackageType: Image
       Architectures:
         - x86_64
-      Policies: 
-        - SQSSendMessagePolicy:
-            QueueName:
-              Ref: QueueName
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - sns:Publish
+            Resource: !Ref ResultsTopicArn
+      Environment:
+        Variables:
+          TOPIC_ARN: !Ref ResultsTopicArn
       MemorySize: 1024
       Events:
         SQSEvent:
@@ -39,6 +44,6 @@ Resources:
             BatchSize: 1
             Enabled: true
     Metadata:
-      DockerTag: nodejs20.x-v1
+      DockerTag: nodejs22.x-v1
       DockerContext: .
       Dockerfile: Dockerfile

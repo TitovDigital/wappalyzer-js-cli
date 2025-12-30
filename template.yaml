@@ -34,7 +34,7 @@ Resources:
       Environment:
         Variables:
           TOPIC_ARN: !Ref ResultsTopicArn
-      MemorySize: 1024
+      MemorySize: 2048 # not expected to be required. Higher value is set due to the init (etrypoing.js) timing out with less CPU
       Events:
         SQSEvent:
           Type: SQS

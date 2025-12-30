@@ -10,6 +10,10 @@ in conjunction with [enthec/webappanalyzer](https://github.com/enthec/webappanal
 When used as a package, the main entry point `driver.js` needs technologies
 and categories to be specified explicitly (see example below).
 
+In addition to pure command-line usage, the repository contains an AWS SAM template,
+allowing to host it on AWS Lambda and use via SQS/SNS.
+See [README-SAM.md]([README-SAM.md]) for details.
+
 ## Command line
 
 ### Usage

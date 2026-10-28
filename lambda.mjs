@@ -1,9 +1,9 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 
-// Convert exec to return a promise
-const execAsync = promisify(exec);
+// Convert execFile to return a promise (no shell involved)
+const execFileAsync = promisify(execFile);
 
 export const handler = async (event, context) => {
     try {
@@ -20,14 +20,37 @@ export const handler = async (event, context) => {
             };
         }
 
+        // Only allow well-formed http(s) URLs
+        let parsed;
+        try {
+            parsed = new URL(params.url);
+        } catch (e) {
+            parsed = null;
+        }
+        if (!parsed || (parsed.protocol !== 'http:' && parsed.protocol !== 'https:')) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({
+                    error: "Invalid URL",
+                    event: event
+                })
+            };
+        }
+
         // Execute the command and wait for results
-        const { stdout, stderr } = await execAsync(`node cli.js "${params.url}"`);
+        const { stdout, stderr } = await execFileAsync('node', ['cli.js', parsed.href], { maxBuffer: 10 * 1024 * 1024 });
 
         if (stderr) {
             console.error('Command stderr:', stderr);
         }
 
         console.log(params.identifier, stdout)
+
+        // SNS caps messages at 256 KB; the consumer only needs technology names
+        const results = JSON.parse(stdout);
+        const message = JSON.stringify({
+            technologies: (results.technologies || []).map(({ name }) => ({ name }))
+        });
 
         // Publish results to SNS
         console.log('TOPIC_ARN environment variable:', process.env.TOPIC_ARN);
@@ -47,7 +70,7 @@ export const handler = async (event, context) => {
         const publishCommand = new PublishCommand({
             TopicArn: process.env.TOPIC_ARN,
             Subject: params.url,
-            Message: stdout
+            Message: message
         });
 
         try {
@@ -61,7 +84,7 @@ export const handler = async (event, context) => {
 
         return {
             statusCode: 200,
-            body: stdout
+            body: message
         };
 
     } catch (error) {
